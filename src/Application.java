@@ -54,7 +54,7 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
                     // Do nothing
                 } else {
 
-                    double r = iteration | (iteration << 4); // 2
+                    double r = iteration | (iteration << 2); // 2
                     while (r > 255) {
                         r -= 255;
                     }

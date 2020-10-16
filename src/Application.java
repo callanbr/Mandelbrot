@@ -6,8 +6,8 @@ import java.awt.event.*;
 import java.awt.Color;
 
 public class Application extends JFrame implements MouseListener, KeyListener, MouseWheelListener {
-    private final int SCREEN_WIDTH = 800;
-    private final int SCREEN_HEIGHT = 600;
+    private final int SCREEN_WIDTH = 1280;
+    private final int SCREEN_HEIGHT = 720;
     private BufferedImage image = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private double zoom = 0.008;
     private double xPos = 0;
@@ -38,9 +38,6 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
         image = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
         int modHeight = SCREEN_HEIGHT >> 1;
         int modWidth = SCREEN_WIDTH >> 1;
-
-        // zx, zy, cX, cY, tmp
-
         for (int y = 0; y < SCREEN_HEIGHT; y++) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
                 zx = zy = 0;
@@ -50,24 +47,24 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
                 int iteration;
                 for (iteration = 0; iteration < maxIterations && zx * zx + zy * zy < 4; iteration++) {
                     tmp = zx * zx - zy * zy + cX;
-                    zy = 2.0 * zx * zy + cY;
+                    zy = 2.0 * zx * zy + cY; // default 2.0 * zx * zy + cY
                     zx = tmp;
                 }
                 if (iteration == maxIterations) {
                     // Do nothing
                 } else {
 
-                    double r = iteration | (iteration << 2);
+                    double r = iteration | (iteration << 4); // 2
                     while (r > 255) {
                         r -= 255;
                     }
 
-                    double g = iteration | (iteration << 3);
+                    double g = iteration | (iteration << 3); // 3
                     while (g > 255) {
                         g -= 255;
                     }
 
-                    double b = iteration | (iteration << 5);
+                    double b = iteration | (iteration << 5); // 5
                     while (b > 255) {
                         b -= 255;
                     }
@@ -103,12 +100,25 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        // System.out.println(e);
+        if (e.getButton() == 1) {
+            xMouseStart = e.getX();
+            yMouseStart = e.getY();
+        }
+        System.out.println(10 * .008);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        if (e.getButton() == 1) {
+            xMouseEnd = e.getX();
+            yMouseEnd = e.getY();
+            double xMove = xMouseEnd - xMouseStart;
+            double yMove = yMouseEnd - yMouseStart;
+            xPos = xPos - (xMove * zoom);
+            yPos = yPos - (yMove * zoom);
+            compute();
+        }
     }
 
     // KeyListener
@@ -119,8 +129,21 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
-            System.out.println("this is an =");
+        if (e.getKeyCode() == KeyEvent.VK_ADD || e.getKeyCode() == KeyEvent.VK_EQUALS) {
+            zoom *= 0.9;
+            compute();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_MINUS || e.getKeyCode() == KeyEvent.VK_SUBTRACT) {
+            zoom *= 1.1;
+            compute();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            maxIterations += 5;
+            compute();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            maxIterations -= 5;
+            compute();
         }
     }
 

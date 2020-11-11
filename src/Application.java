@@ -195,10 +195,10 @@ public class Application extends JFrame implements MouseListener, KeyListener, M
             yPos -= 10 * zoom;
             compute();
         }
-        if (e.getKeyCode() == KeyEvent.VK_T) {
-            rotateAmount += 5;
-            compute();
-        }
+        // if (e.getKeyCode() == KeyEvent.VK_T) {
+        // rotateAmount += 5;
+        // compute();
+        // }
     }
 
     @Override
